@@ -25,16 +25,30 @@ const db = admin.firestore();
 // Access Realtime Database
 const rtdb = admin.database();
 
+const checkStatus = require('./functions/checkStatus');
+const listToken = require('./functions/listToken');
+const delistToken = require('./functions/delistToken');
+const createUser = require('./functions/createUser');
+const fetchCoinGeckoList = require('./functions/fetchCoinGeckoList');
+const fetchCoinMarketData = require('./functions/fetchCoinMarketData');
+const fetchCoinStaticData = require('./functions/fetchCoinStaticData');
+const fetchCoinGraphs = require('./functions/fetchCoinGraphs');
+const getRecommendations = require('./functions/getrecommendations');
+const getSpotlight = require('./functions/getspotlight');
+const getSwapTransaction = require('./functions/getSwapTransaction');
+const addTransaction = require('./functions/addTransaction');
 
-export { checkStatus } from "./functions/checkStatus";
-export { listToken } from "./functions/listToken";
-export { delistToken } from "./functions/delistToken";
-export { createUser } from "./functions/createUser";
-export { fetchCoinGeckoList } from "./functions/fetchCoinGeckoList";
-export { fetchCoinMarketData } from "./functions/fetchCoinMarketData";
-export { fetchCoinStaticData } from './functions/fetchCoinStaticData';
-export { fetchCoinGraphs } from './functions/fetchCoinGraphs';
-export {getRecommendations} from './functions/getrecommendations';
-export {getSpotlight} from './functions/getspotlight';
-export {getSwapTransaction} from './functions/getSwapTransaction';
-export { addTransaction } from './functions/addTransaction';
+
+exports.checkStatus = checkStatus.checkStatus;
+exports.listToken = listToken.listToken;
+exports.delistToken = delistToken.delistToken;
+exports.createUser = createUser.createUser;
+exports.fetchCoinGeckoList = fetchCoinGeckoList.fetchCoinGeckoList;
+exports.fetchCoinMarketData = fetchCoinMarketData.fetchCoinMarketData;
+exports.fetchCoinStaticData = fetchCoinStaticData.fetchCoinStaticData;
+exports.fetchCoinGraphs = fetchCoinGraphs.fetchCoinGraphs;
+exports.getRecommendations = getRecommendations.getRecommendations;
+exports.getSpotlight = getSpotlight.getSpotlight;
+exports.getSwapTransaction = getSwapTransaction.getSwapTransaction;
+exports.addTransaction = addTransaction.addTransaction;
+
