@@ -1,8 +1,8 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
 const db = admin.firestore();
 
-export const getSpotlight = functions.https.onRequest(async (req, res) => {
+export const getSpotlight = onRequest(async (req, res) => {
     try {
         // Set CORS headers
         res.set('Access-Control-Allow-Origin', '*');

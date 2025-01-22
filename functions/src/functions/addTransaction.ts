@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
 import { Timestamp } from 'firebase-admin/firestore';
 
 import * as admin from "firebase-admin";
@@ -14,7 +14,7 @@ interface TransactionData {
   txn_type: 'buy' | 'sell';
 }
 
-export const addTransaction = functions.https.onRequest(async (req, res) => {
+export const addTransaction = onRequest(async (req, res) => {
   try {
     // Enable CORS
     res.set('Access-Control-Allow-Origin', '*');

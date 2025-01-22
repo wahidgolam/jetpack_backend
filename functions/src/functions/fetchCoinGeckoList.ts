@@ -1,11 +1,11 @@
-import * as functions from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as admin from "firebase-admin";
 // Load environment variables from .env file
 dotenv.config();
 
-export const fetchCoinGeckoList = functions.https.onRequest(async (request, response) => {
+export const fetchCoinGeckoList = onRequest(async (request, response) => {
     if (request.method !== 'GET') {
         response.status(405).json({
             error: {

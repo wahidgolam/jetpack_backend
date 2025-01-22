@@ -1,7 +1,7 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
 import axios from 'axios';
 
-export const getSwapTransaction = functions.https.onRequest(async (request, response) => {
+export const getSwapTransaction = onRequest(async (request, response) => {
 
   try {
     // Check if method is POST

@@ -1,9 +1,9 @@
-import * as functions from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
 
-export const delistToken = functions.https.onRequest(async (request, response) => {
+export const delistToken = onRequest(async (request, response) => {
     if (request.method !== 'POST') {
         response.status(405).json({
             error: {

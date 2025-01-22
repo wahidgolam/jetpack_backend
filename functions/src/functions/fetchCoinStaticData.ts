@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
 import axios from 'axios';
 
@@ -20,7 +20,7 @@ interface StaticData {
   contractAddress?: string;
 }
 
-export const fetchCoinStaticData = functions.https.onRequest(async (req, res) => {
+export const fetchCoinStaticData = onRequest(async (req, res) => {
   try {
     // Only allow POST requests
     if (req.method !== 'GET') {

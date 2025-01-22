@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
 import * as dotenv from 'dotenv';
 import * as admin from "firebase-admin";
 import axios from 'axios';
@@ -23,7 +23,7 @@ const DAYS_MAP = {
   '1y': '365'
 };
 
-export const fetchCoinGraphs = functions.https.onRequest(async (req, res) => {
+export const fetchCoinGraphs = onRequest(async (req, res) => {
   try {
     // Get all tokens from Firestore
     const tokensSnapshot = await admin.firestore().collection('tokens').get();

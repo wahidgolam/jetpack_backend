@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
 import axios from 'axios';
 
@@ -9,7 +9,7 @@ const rtdb = admin.database();
 const LIVE_GRAPH_MAX_LENGTH = 100; // You can adjust this value
 
 // Change the function to be HTTP triggered for testing
-export const fetchCoinMarketData = functions.https.onRequest(async (req, res) => {
+export const fetchCoinMarketData = onRequest(async (req, res) => {
 
     if (req.method !== 'GET') {
         res.status(405).json({
