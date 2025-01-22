@@ -3,7 +3,7 @@ import * as admin from "firebase-admin";
 
 const db = admin.firestore();
 
-export const listToken = onRequest(async (request, response) => {
+exports.listToken = onRequest(async (request, response) => {
     if (request.method !== 'POST') {
         response.status(405).json({
             error: {

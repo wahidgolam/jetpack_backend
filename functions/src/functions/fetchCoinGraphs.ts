@@ -23,7 +23,7 @@ const DAYS_MAP = {
   '1y': '365'
 };
 
-export const fetchCoinGraphs = onRequest(async (req, res) => {
+exports.fetchCoinGraphs = onRequest(async (req, res) => {
   try {
     // Get all tokens from Firestore
     const tokensSnapshot = await admin.firestore().collection('tokens').get();

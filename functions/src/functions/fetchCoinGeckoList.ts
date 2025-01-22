@@ -5,7 +5,7 @@ import * as admin from "firebase-admin";
 // Load environment variables from .env file
 dotenv.config();
 
-export const fetchCoinGeckoList = onRequest(async (request, response) => {
+exports.fetchCoinGeckoList = onRequest(async (request, response) => {
     if (request.method !== 'GET') {
         response.status(405).json({
             error: {

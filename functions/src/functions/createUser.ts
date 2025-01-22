@@ -3,7 +3,7 @@ import * as admin from "firebase-admin";
 
 const db = admin.firestore();
 
-export const createUser = onRequest({
+exports.createUser = onRequest({
     memory: '256MiB',
     timeoutSeconds: 60,
     region: 'us-central1'

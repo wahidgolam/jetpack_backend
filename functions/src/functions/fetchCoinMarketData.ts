@@ -9,7 +9,7 @@ const rtdb = admin.database();
 const LIVE_GRAPH_MAX_LENGTH = 100; // You can adjust this value
 
 // Change the function to be HTTP triggered for testing
-export const fetchCoinMarketData = onRequest(async (req, res) => {
+exports.fetchCoinMarketData = onRequest(async (req, res) => {
 
     if (req.method !== 'GET') {
         res.status(405).json({

@@ -20,7 +20,7 @@ interface StaticData {
   contractAddress?: string;
 }
 
-export const fetchCoinStaticData = onRequest(async (req, res) => {
+exports.fetchCoinStaticData = onRequest(async (req, res) => {
   try {
     // Only allow POST requests
     if (req.method !== 'GET') {

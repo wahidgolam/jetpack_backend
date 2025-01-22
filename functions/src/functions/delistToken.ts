@@ -3,7 +3,7 @@ import * as admin from "firebase-admin";
 
 const db = admin.firestore();
 
-export const delistToken = onRequest(async (request, response) => {
+exports.delistToken = onRequest(async (request, response) => {
     if (request.method !== 'POST') {
         response.status(405).json({
             error: {

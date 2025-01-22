@@ -14,7 +14,7 @@ interface TransactionData {
   txn_type: 'buy' | 'sell';
 }
 
-export const addTransaction = onRequest(async (req, res) => {
+exports.addTransaction = onRequest(async (req, res) => {
   try {
     // Enable CORS
     res.set('Access-Control-Allow-Origin', '*');
