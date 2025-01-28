@@ -13,18 +13,22 @@
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import * as express from 'express';
+import * as cors from 'cors';
 
 // Initialize the Firebase Admin SDK
 admin.initializeApp();
 
-// Access Firestore
-const db = admin.firestore();
+// Create Express app
+const app = express.default();
 
-// Access Realtime Database
-const rtdb = admin.database();
+// Middleware
+app.use(cors.default({ origin: true }));
+app.use(express.json());
 
+// Import route handlers
 const checkStatus = require('./functions/checkStatus');
 const listToken = require('./functions/listToken');
 const delistToken = require('./functions/delistToken');
@@ -40,17 +44,21 @@ const addTransaction = require('./functions/addTransaction');
 const getKolList = require('./functions/getKolList');
 const getNewsKeywords = require('./functions/getNewsKeywords');
 
-exports.checkStatus = checkStatus.checkStatus;
-exports.listToken = listToken.listToken;
-exports.delistToken = delistToken.delistToken;
-exports.createUser = createUser.createUser;
-exports.fetchCoinGeckoList = fetchCoinGeckoList.fetchCoinGeckoList;
-exports.fetchCoinMarketData = fetchCoinMarketData.fetchCoinMarketData;
-exports.fetchCoinStaticData = fetchCoinStaticData.fetchCoinStaticData;
-exports.fetchCoinGraphs = fetchCoinGraphs.fetchCoinGraphs;
-exports.getRecommendations = getRecommendations.getRecommendations;
-exports.getSpotlight = getSpotlight.getSpotlight;
-exports.getSwapTransaction = getSwapTransaction.getSwapTransaction;
-exports.addTransaction = addTransaction.addTransaction;
-exports.getKolList = getKolList.getKolList;
-exports.getNewsKeywords = getNewsKeywords.getNewsKeywords;
+// Define routes
+app.get('/status', checkStatus.checkStatus);
+app.post('/tokens/list', listToken.listToken);
+app.post('/tokens/delist', delistToken.delistToken);
+app.post('/create-user', createUser.createUser);
+app.get('/coingecko-list', fetchCoinGeckoList.fetchCoinGeckoList);
+app.get('/coins/market-data', fetchCoinMarketData.fetchCoinMarketData);
+app.get('/coins/static-data', fetchCoinStaticData.fetchCoinStaticData);
+app.get('/coins/graphs', fetchCoinGraphs.fetchCoinGraphs);
+app.get('/recommendations', getRecommendations.getRecommendations);
+app.get('/spotlight', getSpotlight.getSpotlight);
+app.get('/swap', getSwapTransaction.getSwapTransaction);
+app.post('/transactions', addTransaction.addTransaction);
+app.get('/kol', getKolList.getKolList);
+app.get('/news', getNewsKeywords.getNewsKeywords);
+
+// Export the Express app as a Firebase Cloud Function
+exports.backend = functions.https.onRequest(app);

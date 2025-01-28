@@ -1,11 +1,11 @@
-import { onRequest } from "firebase-functions/v2/https";
+import { Request, Response } from 'express';
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
 
-exports.listToken = onRequest(async (request, response) => {
-    if (request.method !== 'POST') {
-        response.status(405).json({
+export const listToken = async (req: Request, res: Response) => {
+    if (req.method !== 'POST') {
+        res.status(405).json({
             error: {
                 code: 405,
                 message: 'Method Not Allowed'
@@ -13,10 +13,10 @@ exports.listToken = onRequest(async (request, response) => {
         });
         return;
     }
-    const { geckoid, address } = request.body;
+    const { geckoid, address } = req.body;
 
     if (!geckoid || !address) {
-        response.status(400).json({
+        res.status(400).json({
             error: {
                 code: 400,
                 message: 'Missing parameters'
@@ -33,7 +33,7 @@ exports.listToken = onRequest(async (request, response) => {
             // If a token with the given name and symbol exists, update its active status to true
             const tokenRef = snapshot.docs[0].ref;
             await tokenRef.update({ active: true });
-            response.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Token relisted successfully'
             });
@@ -47,17 +47,17 @@ exports.listToken = onRequest(async (request, response) => {
                 active: true,
                 listedAt: new Date().toISOString()
             });
-            response.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Token parameters stored successfully'
             });
         }
     } catch (error: any) {
-        response.status(500).json({
+        res.status(500).json({
             error: {
                 code: 500,
                 message: `Error storing token parameters: ${error.message}`
             }
         });
     }
-});
+};

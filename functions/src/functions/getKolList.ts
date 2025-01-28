@@ -1,11 +1,12 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
-import axios from 'axios';
-import { MongoClient } from 'mongodb';
 
 const db = admin.firestore();
 
-exports.getKolList = onRequest(async (request, response) => {
+exports.getKolList = onRequest({
+    cors: true,
+    region: 'us-central1',
+}, async (request, response) => {
     try {
 
         // Get include_name from request body

@@ -2,7 +2,8 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
 import axios from 'axios';
 import { MongoClient } from 'mongodb';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const db = admin.firestore();
 const rtdb = admin.database();

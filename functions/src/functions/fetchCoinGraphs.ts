@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as admin from "firebase-admin";
 import axios from 'axios';
 import { MongoClient } from 'mongodb';
+
 // Load environment variables from .env file
 dotenv.config();
 
