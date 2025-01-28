@@ -33,6 +33,7 @@ All endpoints are accessible through the base URL:
 - **Endpoint:** `/coins/market-data`
 - **Method:** GET
 - **Purpose:** Fetches current market data for all listed tokens
+- **Parameters:** None required
 - **Features:**
   - Updates price and market cap data
   - Maintains live price graphs
@@ -42,6 +43,9 @@ All endpoints are accessible through the base URL:
 - **Endpoint:** `/coins/graphs`
 - **Method:** GET
 - **Purpose:** Fetches historical price and market cap data
+- **Parameters:**
+  - `timeframe` (required): One of '24h', '7d', '1m', '1y'
+  - `token` (required): CoinGecko ID of the token
 - **Timeframes:** 4h, 24h, 7d, 1m, 1y
 - **Features:**
   - Stores graph data in Realtime Database
@@ -51,6 +55,7 @@ All endpoints are accessible through the base URL:
 - **Endpoint:** `/coingecko-list`
 - **Method:** GET
 - **Purpose:** Updates the internal database with latest Solana tokens from CoinGecko
+- **Parameters:** None required
 - **Features:**
   - Filters for Solana-based tokens
   - Updates Firestore collection
@@ -59,12 +64,15 @@ All endpoints are accessible through the base URL:
 - **Endpoint:** `/coins/static-data`
 - **Method:** GET
 - **Purpose:** Fetches static information about tokens
-- **Data Retrieved:**
+- **Parameters:** None required
+- **Response Data:**
   - Token name, symbol
   - Description
   - Categories
   - Links
   - Images
+  - Contract Address (if available)
+- **Note:** Fetches data for all tokens in the Firestore collection
 
 ### User Operations
 
