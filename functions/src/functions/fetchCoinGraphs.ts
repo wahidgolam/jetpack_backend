@@ -2,6 +2,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as dotenv from 'dotenv';
 import * as admin from "firebase-admin";
 import axios from 'axios';
+import { MongoClient } from 'mongodb';
 // Load environment variables from .env file
 dotenv.config();
 
@@ -23,53 +24,90 @@ const DAYS_MAP = {
   '1y': '365'
 };
 
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri) {
+  throw new Error('MONGODB_URI environment variable is not set');
+}
+
+// Add MongoDB connection function
+async function getMongoClient() {
+  const client = new MongoClient(mongoUri as string);
+  await client.connect();
+  return client;
+}
+
 exports.fetchCoinGraphs = onRequest(async (req, res) => {
-  try {
-    // Get all tokens from Firestore
-    const tokensSnapshot = await admin.firestore().collection('tokens').get();
-    const tokens = tokensSnapshot.docs.map(doc => ({
-      geckoId: doc.data().geckoid
-    }));
-
-    for (const token of tokens) {
-      const graphData: Record<string, GraphData> = {};
-
-      // Fetch data for each timeframe
-      for (const timeframe of TIMEFRAMES) {
-        const response = await axios.get<MarketChartData>(
-          `https://api.coingecko.com/api/v3/coins/${token.geckoId}/market_chart`,
-          {
-            params: {
-              vs_currency: 'usd',
-              days: DAYS_MAP[timeframe]
-            },
-            headers: {
-              'accept': 'application/json',
-              'x-cg-demo-api-key': process.env.COINGECKO_API_KEY // Use the environment variable
-            }
-          }
-        );
-
-        graphData[timeframe] = {
-          price: response.data.prices,
-          market_cap: response.data.market_caps,
-        };
-
-        // Calculate 4h data from 24h data
-        if (timeframe === '24h') {
-          const fourHourData = extract4HourData(response.data);
-          graphData['4h'] = fourHourData;
-        }
-      }
-
-      // Update Realtime Database
-      await admin.database().ref(`coinDetails/${token.geckoId}/graphs`).set(graphData);
+  
+  try { 
+    // Validate required timeframe parameter
+    if (!req.body?.timeframe) {
+      res.status(400).send({ error: 'timeframe parameter is required' });
+    }
+    if (!req.body?.token) {
+      res.status(400).send({ error: 'token parameter is required' });
+    }
+    if (!TIMEFRAMES.includes(req.body.timeframe)) {
+      res.status(400).send({ error: 'Invalid timeframe. Must be one of: ' + TIMEFRAMES.join(', ') });
     }
 
-    res.status(200).json({ message: 'Graph data updated successfully' });
-  } catch (error) {
+    const timeframe = req.body.timeframe as typeof TIMEFRAMES[number];
+    const token = req.body.token as string;
+    // Check if specific geckoid is provided in request body
+
+    const graphData: Record<string, GraphData> = {};
+    // Fetch data for each timeframe
+    const response = await axios.get<MarketChartData>(
+      `https://api.coingecko.com/api/v3/coins/${token}/market_chart`,
+      {
+         params: {
+          vs_currency: 'usd',
+           days: DAYS_MAP[timeframe]
+        },
+        headers: {
+          'accept': 'application/json',
+          'x-cg-demo-api-key': process.env.COINGECKO_API_KEY
+        }
+      }
+    );
+
+    graphData[timeframe] = {
+      price: response.data.prices,
+      market_cap: response.data.market_caps,
+    };
+
+    await admin.database().ref(`coinDetails/${token}/graphs/${timeframe}`).set(graphData[timeframe]);
+
+    // Calculate 4h data only if we're fetching 24h data
+    if (timeframe === '24h') {
+      const fourHourData = extract4HourData(response.data);        
+      graphData['4h'] = fourHourData;
+       // Update Realtime Database
+      await admin.database().ref(`coinDetails/${token}/graphs/4h`).set(graphData['4h']);
+    }
+
+    // Update MongoDB
+    try {
+      const mongoClient = await getMongoClient();
+      const db = mongoClient.db('jetpack');
+      await db.collection('coinDetails').updateOne(
+          { token },
+          {
+              $set: {
+                  [`graphs.${timeframe}`]: graphData[timeframe],
+              }
+          },
+          { upsert: true }
+      );
+      await mongoClient.close();
+    } catch (error) {
+      console.error(`Error updating MongoDB for ${token}:`, error);
+    }
+
+    res.status(200).send({ message: 'Graph data updated successfully' });
+    
+  } catch (error:any) {
     console.error('Error fetching graph data:', error);
-    res.status(500).json({ error: 'Failed to fetch graph data' });
+    res.status(500).send({ error: 'Failed to fetch graph data' });
   }
 });
 

@@ -1,6 +1,7 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
 import axios from 'axios';
+import { MongoClient } from 'mongodb';
 
 const db = admin.firestore();
 const rtdb = admin.database();
@@ -20,7 +21,21 @@ interface StaticData {
   contractAddress?: string;
 }
 
+// Add MongoDB connection string from environment variable
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri) {
+  throw new Error('MONGODB_URI environment variable is not set');
+}
+
+// Add MongoDB connection function
+async function getMongoClient() {
+  const client = new MongoClient(mongoUri as string);
+  await client.connect();
+  return client;
+}
+
 exports.fetchCoinStaticData = onRequest(async (req, res) => {
+  let mongoClient: MongoClient | undefined;
   try {
     // Only allow POST requests
     if (req.method !== 'GET') {
@@ -86,6 +101,15 @@ exports.fetchCoinStaticData = onRequest(async (req, res) => {
           .ref(`coinDetails/${geckoId}/staticData`)
           .set(staticData);
 
+        // Update MongoDB
+        mongoClient = await getMongoClient();
+        const db = mongoClient.db('jetpack');
+        await db.collection('coinDetails').updateOne(
+          { id: geckoId },
+          { $set: { "staticData": staticData } },
+          { upsert: true }
+        );
+
         return { success: true, id: geckoId };
       } catch (error: any) {
         console.error(`Error processing ${geckoId}:`, error);
@@ -108,5 +132,10 @@ exports.fetchCoinStaticData = onRequest(async (req, res) => {
       error: 'Internal server error',
       message: error.message
     });
+  } finally {
+    // Close MongoDB connection
+    if (mongoClient) {
+      await mongoClient.close();
+    }
   }
 }); 

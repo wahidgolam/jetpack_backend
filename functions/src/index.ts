@@ -37,7 +37,8 @@ const getRecommendations = require('./functions/getrecommendations');
 const getSpotlight = require('./functions/getspotlight');
 const getSwapTransaction = require('./functions/getSwapTransaction');
 const addTransaction = require('./functions/addTransaction');
-
+const getKolList = require('./functions/getKolList');
+const getNewsKeywords = require('./functions/getNewsKeywords');
 
 exports.checkStatus = checkStatus.checkStatus;
 exports.listToken = listToken.listToken;
@@ -51,4 +52,5 @@ exports.getRecommendations = getRecommendations.getRecommendations;
 exports.getSpotlight = getSpotlight.getSpotlight;
 exports.getSwapTransaction = getSwapTransaction.getSwapTransaction;
 exports.addTransaction = addTransaction.addTransaction;
-
+exports.getKolList = getKolList.getKolList;
+exports.getNewsKeywords = getNewsKeywords.getNewsKeywords;

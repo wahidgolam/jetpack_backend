@@ -1,6 +1,8 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from 'firebase-admin';
 import axios from 'axios';
+import { MongoClient } from 'mongodb';
+
 
 const db = admin.firestore();
 const rtdb = admin.database();
@@ -9,6 +11,19 @@ const rtdb = admin.database();
 const LIVE_GRAPH_MAX_LENGTH = 100; // You can adjust this value
 
 // Change the function to be HTTP triggered for testing
+
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri) {
+  throw new Error('MONGODB_URI environment variable is not set');
+}
+
+// Add MongoDB connection function
+async function getMongoClient() {
+  const client = new MongoClient(mongoUri as string);
+  await client.connect();
+  return client;
+}
+
 exports.fetchCoinMarketData = onRequest(async (req, res) => {
 
     if (req.method !== 'GET') {
@@ -80,14 +95,17 @@ exports.fetchCoinMarketData = onRequest(async (req, res) => {
             let marketCaps = liveMarketCapsSnapshot.val() || [];
 
             // Add new data points
-            prices.push({
+            const newPrice = {
                 timestamp: currentTimestamp,
                 price: current_price
-            });
-            marketCaps.push({
+            };
+            const newMarketCap = {
                 timestamp: currentTimestamp,
                 market_cap: market_cap
-            });
+            };
+            
+            prices.push(newPrice);
+            marketCaps.push(newMarketCap);
 
             // Trim arrays to maintain maximum length
             if (prices.length > LIVE_GRAPH_MAX_LENGTH) {
@@ -97,9 +115,29 @@ exports.fetchCoinMarketData = onRequest(async (req, res) => {
                 marketCaps = marketCaps.slice(-LIVE_GRAPH_MAX_LENGTH);
             }
 
-            // Add to updates
+            // Add to RTDB updates
             updates[`/coinDetails/${id}/graphs/live/prices`] = prices;
             updates[`/coinDetails/${id}/graphs/live/market_caps`] = marketCaps;
+
+            // Update MongoDB
+            try {
+                const mongoClient = await getMongoClient();
+                const db = mongoClient.db('jetpack');
+                await db.collection('coinDetails').updateOne(
+                    { id },
+                    {
+                        $set: {
+                            marketData: filteredCoin,
+                            'graphs.live.prices': prices,
+                            'graphs.live.market_caps': marketCaps
+                        }
+                    },
+                    { upsert: true }
+                );
+                await mongoClient.close();
+            } catch (error) {
+                console.error(`Error updating MongoDB for ${id}:`, error);
+            }
         }
 
         await rtdb.ref().update(updates);
