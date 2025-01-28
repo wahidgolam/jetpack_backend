@@ -2,18 +2,24 @@
 
 This repository contains the Firebase Cloud Functions that power the Jetpack backend services. These functions provide various endpoints for token management, market data fetching, user operations, and trading functionality.
 
-## Functions Overview
+## Base URL
+All endpoints are accessible through the base URL:
+`https://us-central1-jetpack-cb13f.cloudfunctions.net/backend`
+
+## API Endpoints
 
 ### Token Management
 
-#### `listToken`
+#### List Token
+- **Endpoint:** `/tokens/list`
 - **Method:** POST
 - **Purpose:** Lists or relists a token in the system
 - **Parameters:**
   - `geckoid`: CoinGecko ID of the token
   - `address`: Contract address of the token
 
-#### `delistToken`
+#### Delist Token
+- **Endpoint:** `/tokens/delist`
 - **Method:** POST
 - **Purpose:** Delists a token from the system
 - **Parameters:** (At least one required)
@@ -23,7 +29,8 @@ This repository contains the Firebase Cloud Functions that power the Jetpack bac
 
 ### Market Data
 
-#### `fetchCoinMarketData`
+#### Fetch Market Data
+- **Endpoint:** `/coins/market-data`
 - **Method:** GET
 - **Purpose:** Fetches current market data for all listed tokens
 - **Features:**
@@ -31,7 +38,8 @@ This repository contains the Firebase Cloud Functions that power the Jetpack bac
   - Maintains live price graphs
   - Stores data in Realtime Database
 
-#### `fetchCoinGraphs`
+#### Fetch Graphs
+- **Endpoint:** `/coins/graphs`
 - **Method:** GET
 - **Purpose:** Fetches historical price and market cap data
 - **Timeframes:** 4h, 24h, 7d, 1m, 1y
@@ -39,14 +47,16 @@ This repository contains the Firebase Cloud Functions that power the Jetpack bac
   - Stores graph data in Realtime Database
   - Includes price and market cap history
 
-#### `fetchCoinGeckoList`
+#### Fetch CoinGecko List
+- **Endpoint:** `/coingecko-list`
 - **Method:** GET
 - **Purpose:** Updates the internal database with latest Solana tokens from CoinGecko
 - **Features:**
   - Filters for Solana-based tokens
   - Updates Firestore collection
 
-#### `fetchCoinStaticData`
+#### Fetch Static Data
+- **Endpoint:** `/coins/static-data`
 - **Method:** GET
 - **Purpose:** Fetches static information about tokens
 - **Data Retrieved:**
@@ -58,14 +68,16 @@ This repository contains the Firebase Cloud Functions that power the Jetpack bac
 
 ### User Operations
 
-#### `createUser`
+#### Create User
+- **Endpoint:** `/create-user`
 - **Method:** POST
 - **Purpose:** Creates a new user in the system
 - **Parameters:**
   - `email`: User's email address
   - `walletPubKey`: User's wallet public key
 
-#### `addTransaction`
+#### Add Transaction
+- **Endpoint:** `/transactions`
 - **Method:** POST
 - **Purpose:** Records a user's trading transaction
 - **Parameters:**
@@ -78,8 +90,9 @@ This repository contains the Firebase Cloud Functions that power the Jetpack bac
 
 ### Trading Operations
 
-#### `getSwapTransaction`
-- **Method:** POST
+#### Get Swap Transaction
+- **Endpoint:** `/swap`
+- **Method:** GET
 - **Purpose:** Generates a swap transaction using Jupiter Protocol
 - **Parameters:**
   - `mint`: Token mint address
@@ -89,21 +102,34 @@ This repository contains the Firebase Cloud Functions that power the Jetpack bac
 
 ### Discovery
 
-#### `getRecommendations`
+#### Get Recommendations
+- **Endpoint:** `/recommendations`
 - **Method:** GET
 - **Purpose:** Retrieves recommended tokens
 - **Features:**
   - Returns up to 10 token recommendations
 
-#### `getSpotlight`
+#### Get Spotlight
+- **Endpoint:** `/spotlight`
 - **Method:** GET
 - **Purpose:** Retrieves spotlight tokens
 - **Features:**
   - Returns featured tokens for the spotlight section
 
+#### Get KOL List
+- **Endpoint:** `/kol`
+- **Method:** GET
+- **Purpose:** Retrieves Key Opinion Leaders list
+
+#### Get News Keywords
+- **Endpoint:** `/news`
+- **Method:** GET
+- **Purpose:** Retrieves news keywords
+
 ### System Status
 
-#### `checkStatus`
+#### Check Status
+- **Endpoint:** `/status`
 - **Method:** GET
 - **Purpose:** Checks if the API is operational
 - **Response:** Returns status and welcome message
