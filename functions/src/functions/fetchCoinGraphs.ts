@@ -40,19 +40,18 @@ async function getMongoClient() {
 exports.fetchCoinGraphs = onRequest(async (req, res) => {
   
   try { 
-    // Validate required timeframe parameter
-    if (!req.body?.timeframe) {
-      res.status(400).send({ error: 'timeframe parameter is required' });
-    }
-    if (!req.body?.token) {
-      res.status(400).send({ error: 'token parameter is required' });
-    }
-    if (!TIMEFRAMES.includes(req.body.timeframe)) {
-      res.status(400).send({ error: 'Invalid timeframe. Must be one of: ' + TIMEFRAMES.join(', ') });
-    }
 
-    const timeframe = req.body.timeframe as typeof TIMEFRAMES[number];
-    const token = req.body.token as string;
+    const { token, timeframe } = req.body;
+    // Validate required timeframe parameter
+    // if (!req.body.timeframe) {
+    //   res.status(400).send({ error: 'timeframe parameter is required' });
+    // }
+    // if (!req.body.token) {
+    //   res.status(400).send({ error: 'token parameter is required' });
+    // }
+    // if (!TIMEFRAMES.includes(req.body.timeframe)) {
+    //   res.status(400).send({ error: 'Invalid timeframe. Must be one of: ' + TIMEFRAMES.join(', ') });
+    // }
     // Check if specific geckoid is provided in request body
 
     const graphData: Record<string, GraphData> = {};
@@ -62,7 +61,7 @@ exports.fetchCoinGraphs = onRequest(async (req, res) => {
       {
          params: {
           vs_currency: 'usd',
-           days: DAYS_MAP[timeframe]
+           days: DAYS_MAP[timeframe as keyof typeof DAYS_MAP]
         },
         headers: {
           'accept': 'application/json',
@@ -90,18 +89,32 @@ exports.fetchCoinGraphs = onRequest(async (req, res) => {
     try {
       const mongoClient = await getMongoClient();
       const db = mongoClient.db('jetpack');
-      await db.collection('coinDetails').updateOne(
-          { token },
-          {
-              $set: {
-                  [`graphs.${timeframe}`]: graphData[timeframe],
-              }
-          },
-          { upsert: true }
-      );
+      if(timeframe as string == '24h'){
+        await db.collection('coinDetails').updateOne(
+            { id: token },
+            {
+                $set: {
+                    'metadata.graphs.24h': graphData[timeframe],
+                }
+            },
+            { upsert: true }
+        );
+      }
+      else if(timeframe as string == '1m'){
+        await db.collection('coinDetails').updateOne(
+            { id:token },
+            {
+                $set: {
+                    'metadata.graphs.1m': graphData[timeframe],
+                }
+            },
+            { upsert: true }
+        );
+      }
       await mongoClient.close();
-    } catch (error) {
+    } catch (error:any) {
       console.error(`Error updating MongoDB for ${token}:`, error);
+      res.status(500).send({ message: error.message });
     }
 
     res.status(200).send({ message: 'Graph data updated successfully' });

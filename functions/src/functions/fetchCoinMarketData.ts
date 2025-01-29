@@ -128,9 +128,9 @@ exports.fetchCoinMarketData = onRequest(async (req, res) => {
                     { id },
                     {
                         $set: {
-                            marketData: filteredCoin,
-                            'graphs.live.prices': prices,
-                            'graphs.live.market_caps': marketCaps
+                            'metadata.marketData': filteredCoin,
+                            'metadata.graphs.live.prices': prices,
+                            'metadata.graphs.live.market_caps': marketCaps
                         }
                     },
                     { upsert: true }

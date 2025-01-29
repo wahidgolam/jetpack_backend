@@ -107,7 +107,7 @@ exports.fetchCoinStaticData = onRequest(async (req, res) => {
         const db = mongoClient.db('jetpack');
         await db.collection('coinDetails').updateOne(
           { id: geckoId },
-          { $set: { "staticData": staticData } },
+          { $set: { "metadata.staticData": staticData } },
           { upsert: true }
         );
 
